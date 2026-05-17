@@ -1,0 +1,32 @@
+import { Refrigerator, Sparkles, ShoppingBag } from 'lucide-react';
+
+export default function NavMenu ({ activeTab, onTabChange }) {
+  const menuItems = [
+    { id: 'fridge', label: 'Мой холодильник', icon: Refrigerator },
+    { id: 'chef', label: 'ИИ-Шеф', icon: Sparkles },
+    { id: 'shop', label: 'Список покупок', icon: ShoppingBag },
+  ]
+
+  return (
+    <nav className='flex flex-col gap-1.5 flex-1 mt-8'>
+      {menuItems.map(item => {
+        const isActive = activeTab === item.id;
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 
+              ${isActive ?
+                'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+          >
+            <Icon size={20} />
+            <span>{item.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
