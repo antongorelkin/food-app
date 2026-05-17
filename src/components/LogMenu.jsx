@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabaseClient';
 
 export default function LogMenu (session, handleSignOut) {
   return (
-    <div className="border-t border-slate-100 flex flex-col gap-4">
+    <div className="border-t border-slate-100 flex flex-col gap-4 py-4">
       <div className='flex items-center gap-3 px-2'>
         <div className=' w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 font-semibold text-sm'>
           {session?.user?.email?.[0].toUpperCase() || 'U'}
