@@ -1,8 +1,10 @@
 import { Refrigerator, Sparkles, ShoppingBag } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
+type TabType = "fridge" | "chef" | "shop";
+
 interface MenuItem {
-	id: "fridge" | "chef" | "shop";
+	id: TabType;
 	label: string;
 	icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
 }
