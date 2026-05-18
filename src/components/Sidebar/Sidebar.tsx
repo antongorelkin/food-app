@@ -4,23 +4,27 @@ import NavMenu from "./NavMenu";
 import LogMenu from "./LogMenu";
 import { useState, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
-import { supabase } from "../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 
-export default function Sidebar() {
-	const [activeTab, setActiveTab] = useState("fridge");
-	const [session, setSession] = useState<Session | null>(null);
+interface SidebarProps {
+	activeTab: "fridge" | "chef" | "shop";
+	setActiveTab: (tab: "fridge" | "chef" | "shop") => void;
+	session: Session | null;
+}
 
-	useEffect(() => {
-		supabase.auth
-			.getSession()
-			.then(({ data: { session } }) => setSession(session));
-		const {
-			data: { session },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
-		});
-	}, []);
-
+export default function Sidebar({
+	activeTab,
+	setActiveTab,
+	session,
+}: SidebarProps) {
+	const handleSignOut = async () => {
+		try {
+			const { error } = await supabase.auth.signOut();
+			if (error) throw error;
+		} catch (err) {
+			console.error("Ошибка при выходе из системы:", err);
+		}
+	};
 	return (
 		<aside className="w-64 h-[calc(100vh-32px)]  bg-white shadow-md shadow-sm rounded-2xl flex flex-col p-6 justify-between">
 			<div className="flex items-center gap-3 px-2">
