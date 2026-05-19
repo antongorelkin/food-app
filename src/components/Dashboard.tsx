@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar/Sidebar";
 import { Session } from "@supabase/supabase-js";
+import FridgeGrid from "./Fridge/FridgeGrid";
 
 export default function Dashboard() {
 	const [session, setSession] = useState<Session | null>(null);
@@ -16,16 +17,7 @@ export default function Dashboard() {
 				setActiveTab={setActiveTab}
 			/>
 			<main className="flex-1 bg-white rounded-2xl shadow-md p-6 h-[calc(100vh - 32px)] border border-slate-100">
-				{activeTab === "fridge" && (
-					<div>
-						<h2 className="text-2xl font-bold text-slate-800">
-							🧊 Мой холодильник
-						</h2>
-						<p className="text-slate-500 mt-2">
-							Сюда мы начнем выводить карточки продуктов
-						</p>
-					</div>
-				)}
+				{activeTab === "fridge" && <FridgeGrid />}
 
 				{activeTab === "chef" && (
 					<div>
