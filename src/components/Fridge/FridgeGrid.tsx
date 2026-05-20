@@ -9,15 +9,33 @@ export default function FridgeGrd() {
 	]);
 
 	const handleIncrement = (id: string | number) => {
-		console.log("Плюс для продукта:", id);
+		setProducts(
+			products.map((product) => {
+				if (product.id === id) {
+					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
+					const newQuantity = Number((product.quantity + step).toFixed(1));
+					return { ...product, quantity: newQuantity };
+				}
+				return product;
+			}),
+		);
 	};
 
 	const handleDecrement = (id: string | number) => {
-		console.log("Минус для продукта:", id);
+		setProducts(
+			products.map((product) => {
+				if (product.id === id) {
+					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
+					const newQuantity = Number((product.quantity - step).toFixed(1));
+					return { ...product, quantity: newQuantity };
+				}
+				return product;
+			}),
+		);
 	};
 
 	const handleDelete = (id: string | number) => {
-		console.log("Удаление продукта:", id);
+		setProducts(products.filter((product) => product.id !== id));
 	};
 
 	return (
