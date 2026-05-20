@@ -34,6 +34,16 @@ export default function FridgeGrd() {
 		);
 	};
 
+	const handleChangeQuantity = (id: string | number, value: number) => {
+		setProducts(
+			products.map((product) =>
+				product.id === id
+					? { ...product, quantity: value < 0 ? 0 : Number(value.toFixed(1)) }
+					: product,
+			),
+		);
+	};
+
 	const handleDelete = (id: string | number) => {
 		setProducts(products.filter((product) => product.id !== id));
 	};
@@ -57,6 +67,7 @@ export default function FridgeGrd() {
 						onIncrement={handleIncrement}
 						onDecrement={handleDecrement}
 						onDelete={handleDelete}
+						onChangeQuantity={handleChangeQuantity}
 					/>
 				))}
 			</div>

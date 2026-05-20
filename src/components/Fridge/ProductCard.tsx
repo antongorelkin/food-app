@@ -14,6 +14,7 @@ interface ProductCardProps {
 	onIncrement: (id: string | number) => void;
 	onDecrement: (id: string | number) => void;
 	onDelete: (id: string | number) => void;
+	onChangeQuantity: (id: string | number, value: number) => void;
 }
 
 export default function ProductCard({
@@ -21,6 +22,7 @@ export default function ProductCard({
 	onIncrement,
 	onDecrement,
 	onDelete,
+	onChangeQuantity,
 }: ProductCardProps) {
 	let statusBg = "bg-emerald-50 text-emerald-700";
 	let statusText = `Свежее (${product.daysLeft} дн.)`;
@@ -55,9 +57,29 @@ export default function ProductCard({
 						className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-xs hover:bg-slate-100 transition-colors cursor-pointer">
 						<Minus className="w-3.5 h-3.5" />
 					</button>
-					<span className="text-xs font-semibold text-slate-700 min-w-11.25 text-center select-none">
-						{product.quantity} {product.unit}
-					</span>
+					<div className="flex items-center gap-0.5 text-xs font-semibold text-slate-700">
+						<input
+							type="number"
+							step={
+								product.unit === "шт" || product.unit === "уп" ? "1" : "0.1"
+							}
+							min="0"
+							value={product.quantity === 0 ? "" : product.quantity}
+							onChange={(e) => {
+								const val = e.target.value;
+								onChangeQuantity(product.id, val === "" ? 0 : parseFloat(val));
+							}}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									e.currentTarget.blur();
+								}
+							}}
+							className="w-8 text-right bg-transparent border-none focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-bold pr-0.5"
+						/>
+						<span className="text-slate-400 pl-0.5 font-medium">
+							{product.unit}
+						</span>
+					</div>
 					<button
 						onClick={() => onIncrement(product.id)}
 						className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-xs hover:bg-slate-100 transition-colors cursor-pointer">
