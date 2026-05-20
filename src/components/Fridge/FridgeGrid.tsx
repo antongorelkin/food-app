@@ -1,12 +1,23 @@
-import React from "react";
-import ProductCard from "./ProductCard";
+import React, { useState } from "react";
+import ProductCard, { Product } from "./ProductCard";
+import AddProductModal from "./AddProductModal";
 
 export default function FridgeGrd() {
-	const [products, setProducts] = React.useState([
+	const [products, setProducts] = useState<Product[]>([
 		{ id: 1, name: "Молоко 3,2%", quantity: 1, unit: "л", daysLeft: 2 },
 		{ id: 2, name: "Куриное филе", quantity: 0.8, unit: "кг", daysLeft: 5 },
 		{ id: 3, name: "Сыр Тофу", quantity: 2, unit: "шт", daysLeft: 0 },
 	]);
+
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const handleAddProduct = (newProductData: Omit<Product, "id">) => {
+		const newProduct: Product = {
+			...newProductData,
+			id: Date.now(),
+		};
+		setProducts([...products, newProduct]);
+	};
 
 	const handleIncrement = (id: string | number) => {
 		setProducts(
@@ -34,6 +45,16 @@ export default function FridgeGrd() {
 		);
 	};
 
+	const handleChangeQuantity = (id: string | number, value: number) => {
+		setProducts(
+			products.map((product) =>
+				product.id === id
+					? { ...product, quantity: value < 0 ? 0 : Number(value.toFixed(1)) }
+					: product,
+			),
+		);
+	};
+
 	const handleDelete = (id: string | number) => {
 		setProducts(products.filter((product) => product.id !== id));
 	};
@@ -44,7 +65,9 @@ export default function FridgeGrd() {
 				<h2 className="text-2xl font-bold text-slate-800">
 					🧊 Мой холодильник
 				</h2>
-				<button className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-sm transition-colors cursor-pointer">
+				<button
+					onClick={() => setIsModalOpen(true)}
+					className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-sm transition-colors cursor-pointer">
 					+ Добавить продукт
 				</button>
 			</div>
@@ -57,9 +80,15 @@ export default function FridgeGrd() {
 						onIncrement={handleIncrement}
 						onDecrement={handleDecrement}
 						onDelete={handleDelete}
+						onChangeQuantity={handleChangeQuantity}
 					/>
 				))}
 			</div>
+			<AddProductModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				onAdd={handleAddProduct}
+			/>
 		</div>
 	);
 }
