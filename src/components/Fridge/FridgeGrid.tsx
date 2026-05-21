@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
+import ConfirmModal from "../ConfirmModal";
 
 export default function FridgeGrd() {
 	const [products, setProducts] = useState<Product[]>([
@@ -10,6 +11,20 @@ export default function FridgeGrd() {
 	]);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [productToDelete, setProductToDelete] = useState<
+		string | number | null
+	>(null);
+
+	const handleOpenConfirm = (id: string | number) => {
+		setProductToDelete(id);
+	};
+
+	const handleConfirmDelete = () => {
+		if (productToDelete !== null) {
+			setProducts(products.filter((product) => product.id !== productToDelete));
+			setProductToDelete(null);
+		}
+	};
 
 	const handleAddProduct = (newProductData: Omit<Product, "id">) => {
 		const newProduct: Product = {
@@ -55,10 +70,6 @@ export default function FridgeGrd() {
 		);
 	};
 
-	const handleDelete = (id: string | number) => {
-		setProducts(products.filter((product) => product.id !== id));
-	};
-
 	return (
 		<div className="w-full flex flex-col gap-6">
 			<div className="flex justify-between items-center w-full">
@@ -79,7 +90,7 @@ export default function FridgeGrd() {
 						product={product}
 						onIncrement={handleIncrement}
 						onDecrement={handleDecrement}
-						onDelete={handleDelete}
+						onDelete={handleOpenConfirm}
 						onChangeQuantity={handleChangeQuantity}
 					/>
 				))}
@@ -88,6 +99,13 @@ export default function FridgeGrd() {
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				onAdd={handleAddProduct}
+			/>
+			<ConfirmModal
+				isOpen={productToDelete !== null}
+				title="Удаление продукта"
+				message="Вы уверены, что хотите убрать этот продукт из холодильника? Это действие нельзя будет отменить."
+				onConfirm={handleConfirmDelete}
+				onCancel={() => setProductToDelete(null)}
 			/>
 		</div>
 	);
