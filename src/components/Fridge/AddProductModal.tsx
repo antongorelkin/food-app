@@ -21,7 +21,7 @@ export default function AddProductModal({
 	if (!isOpen) return null;
 
 	const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-		if ((e.target = e.currentTarget)) {
+		if (e.target === e.currentTarget) {
 			onClose();
 		}
 	};
