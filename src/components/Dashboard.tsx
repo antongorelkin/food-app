@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar/Sidebar";
 import { Session } from "@supabase/supabase-js";
 import FridgeGrid from "./Fridge/FridgeGrid";
+import AiChef from "./AiChef/AiChef";
 
 export default function Dashboard() {
 	const [session, setSession] = useState<Session | null>(null);
@@ -19,16 +20,7 @@ export default function Dashboard() {
 			<main className="flex-1 bg-white rounded-2xl shadow-md p-6 h-[calc(100vh - 32px)] border border-slate-100">
 				{activeTab === "fridge" && <FridgeGrid />}
 
-				{activeTab === "chef" && (
-					<div>
-						<h2 className="text-2xl font-bold text-slate-800">
-							🪄 ИИ-Шеф Повар
-						</h2>
-						<p className="text-slate-500 mt-2">
-							Здесь нейросеть будет генерировать рецепты
-						</p>
-					</div>
-				)}
+				{activeTab === "chef" && <AiChef />}
 
 				{activeTab === "shop" && (
 					<div>
