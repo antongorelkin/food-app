@@ -3,13 +3,13 @@ import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
 import ConfirmModal from "../ConfirmModal";
 
-export default function FridgeGrd() {
-	const [products, setProducts] = useState<Product[]>([
-		{ id: 1, name: "Молоко 3,2%", quantity: 1, unit: "л", daysLeft: 2 },
-		{ id: 2, name: "Куриное филе", quantity: 0.8, unit: "кг", daysLeft: 5 },
-		{ id: 3, name: "Сыр Тофу", quantity: 2, unit: "шт", daysLeft: 0 },
-	]);
-
+export default function FridgeGrd({
+	products,
+	setProducts,
+}: {
+	products: Product[];
+	setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+}) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [productToDelete, setProductToDelete] = useState<
 		string | number | null
