@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Sidebar from "./Sidebar/Sidebar";
 import { Session } from "@supabase/supabase-js";
 import FridgeGrid from "./Fridge/FridgeGrid";
