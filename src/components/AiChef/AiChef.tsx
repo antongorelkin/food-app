@@ -17,7 +17,10 @@ interface AiChefProps {
 }
 
 export default function AiChef({ products }: AiChefProps) {
-	const [recipe, setRecipe] = React.useState<Recipe | null>(null);
+	const [recipe, setRecipe] = React.useState<Recipe | null>(() => {
+		const savedRecipe = localStorage.getItem("smart_fridge_cached_recipe");
+		return savedRecipe ? JSON.parse(savedRecipe) : null;
+	});
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
@@ -32,8 +35,14 @@ export default function AiChef({ products }: AiChefProps) {
 		setRecipe(null);
 		setError(null);
 
+		localStorage.removeItem("smart_fridge_cached_recipe");
+
 		try {
 			const generatedRecipe = await fetchRecipeFromAi(products);
+			localStorage.setItem(
+				"smart_fridge_cached_recipe",
+				JSON.stringify(generatedRecipe),
+			);
 			setRecipe(generatedRecipe);
 		} catch (err: any) {
 			setError(
@@ -42,6 +51,11 @@ export default function AiChef({ products }: AiChefProps) {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const handleResetRecipe = () => {
+		setRecipe(null);
+		localStorage.removeItem("smart_fridge_cached_recipe");
 	};
 
 	return (
@@ -64,6 +78,14 @@ export default function AiChef({ products }: AiChefProps) {
 					? "🔮 Наш шеф-повар изучает холодильник"
 					: "🪄 Сгенерировать рецепт"}
 			</button>
+			{recipe && !loading && (
+				<button
+					onClick={handleResetRecipe}
+					className="text-xs text-slate-400 hover:text-rose-500 self-end transition-colors cursor-pointer">
+					🔄 Сбросить и придумать другое блюдо
+				</button>
+			)}
+
 			{error && (
 				<div className="p-4 bg-rose-50border border-rose-200 rounded-2xl text-sm text-rose-700 font-medium">
 					{error}
