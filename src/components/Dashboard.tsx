@@ -4,6 +4,7 @@ import { Session } from "@supabase/supabase-js";
 import FridgeGrid from "./Fridge/FridgeGrid";
 import AiChef from "./AiChef/AiChef";
 import { Product } from "./Fridge/ProductCard";
+import ShoppingList from "./ShoppingList/ShoppingList";
 
 export interface ShoppingItem {
 	id: string | number;
@@ -23,6 +24,31 @@ export default function Dashboard() {
 		const saved = localStorage.getItem("smart_fridge_shopping_list");
 		return saved ? JSON.parse(saved) : [];
 	});
+
+	const handleToggleComplete = (id: string | number) => {
+		const updatedList = shoppingList.map((item) =>
+			item.id === id ? { ...item, isCompleted: !item.isCompleted } : item,
+		);
+		setShoppingList(updatedList);
+		localStorage.setItem(
+			"smart_fridge_shopping_list",
+			JSON.stringify(updatedList),
+		);
+	};
+
+	const handleDeleteShoppingItem = (id: string | number) => {
+		const updatedList = shoppingList.filter((item) => item.id !== id);
+		setShoppingList(updatedList);
+		localStorage.setItem(
+			"smart_fridge_shopping_list",
+			JSON.stringify(updatedList),
+		);
+	};
+
+	const handleClearAllShoppingList = () => {
+		setShoppingList([]);
+		localStorage.removeItem("smart_fridge_shopping_list");
+	};
 
 	const handleAddToShoppingList = (name: string) => {
 		const isExist = shoppingList.some(
@@ -66,7 +92,12 @@ export default function Dashboard() {
 							🛒 Список покупок
 						</h2>
 						<p className="text-slate-500 mt-2">
-							Здесь будет чек-лист для похода в магазин.
+							<ShoppingList
+								items={shoppingList}
+								onToggleComplete={handleToggleComplete}
+								onDeleteItem={handleDeleteShoppingItem}
+								onClearAll={handleClearAllShoppingList}
+							/>
 						</p>
 					</div>
 				)}
