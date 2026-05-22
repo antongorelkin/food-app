@@ -14,9 +14,10 @@ interface Recipe {
 
 interface AiChefProps {
 	products: Product[];
+	onAddToShop: (name: string) => void;
 }
 
-export default function AiChef({ products }: AiChefProps) {
+export default function AiChef({ products, onAddToShop }: AiChefProps) {
 	const [recipe, setRecipe] = React.useState<Recipe | null>(() => {
 		const savedRecipe = localStorage.getItem("smart_fridge_cached_recipe");
 		return savedRecipe ? JSON.parse(savedRecipe) : null;
@@ -25,7 +26,9 @@ export default function AiChef({ products }: AiChefProps) {
 	const [error, setError] = React.useState<string | null>(null);
 
 	const handleGenerateRecipe = async () => {
-		if (products.length === 0) {
+		const freshProducts = products.filter((product) => product.daysLeft > 0);
+
+		if (freshProducts.length === 0) {
 			setError(
 				"Ваш холодильник пуст! Пожалуйста, добавьте продукты, чтобы наш шеф-повар мог придумать рецепт.",
 			);
@@ -38,7 +41,7 @@ export default function AiChef({ products }: AiChefProps) {
 		localStorage.removeItem("smart_fridge_cached_recipe");
 
 		try {
-			const generatedRecipe = await fetchRecipeFromAi(products);
+			const generatedRecipe = await fetchRecipeFromAi(freshProducts);
 			localStorage.setItem(
 				"smart_fridge_cached_recipe",
 				JSON.stringify(generatedRecipe),
@@ -73,7 +76,7 @@ export default function AiChef({ products }: AiChefProps) {
 			<button
 				onClick={handleGenerateRecipe}
 				disabled={loading}
-				className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md shadow-emerald-600/10 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed cursor-pointer text-center">
+				className="w-full py-4 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md shadow-emerald-600/10 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed cursor-pointer text-center">
 				{loading
 					? "🔮 Наш шеф-повар изучает холодильник"
 					: "🪄 Сгенерировать рецепт"}
@@ -92,7 +95,9 @@ export default function AiChef({ products }: AiChefProps) {
 				</div>
 			)}
 			{loading && <RecipeSkeleton />}
-			{recipe && !loading && <RecipeView recipe={recipe} />}
+			{recipe && !loading && (
+				<RecipeView recipe={recipe} onAddToShop={onAddToShop} />
+			)}
 		</div>
 	);
 }

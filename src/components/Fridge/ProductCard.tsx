@@ -24,10 +24,11 @@ export default function ProductCard({
 	onDelete,
 	onChangeQuantity,
 }: ProductCardProps) {
+	const isExpired = product.daysLeft <= 0;
 	let statusBg = "bg-emerald-50 text-emerald-700";
 	let statusText = `Свежее (${product.daysLeft} дн.)`;
 
-	if (product.daysLeft <= 0) {
+	if (isExpired) {
 		statusBg = "bg-rose-100 text-rose-700 font-semibold animate-pulse";
 		statusText = "Просрочено!";
 	} else if (product.daysLeft <= 3) {
@@ -36,11 +37,16 @@ export default function ProductCard({
 	}
 
 	return (
-		<div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-100 flex flex-col justify-between gap-4 transition-all duration-200 hover:shadow-md hover:translate-y-0.5">
+		<div
+			className={`bg-white rounded-2xl p-5 shadow-xs border border-slate-100 flex flex-col justify-between gap-4 transition-all duration-200  ${
+				isExpired
+					? "opacity-50 border-rose-100"
+					: "hover:shadow-md hover:-translate-y-0.5"
+			}`}>
 			<div className="flex flex-col gap-1.5">
 				<div className="flex justify-between items-start gap-2">
 					<h3
-						className="font-semibold text-slate-800 text-base leading-snug truncate max-w-35"
+						className={`font-semibold text-base leading-snug truncate max-w-35 ${isExpired ? "line-through text-slate-400" : "text-slate-800"}`}
 						title={product.name}>
 						{product.name}
 					</h3>
@@ -54,6 +60,7 @@ export default function ProductCard({
 				<div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl p-1 gap-2">
 					<button
 						onClick={() => onDecrement(product.id)}
+						disabled={isExpired}
 						className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-xs hover:bg-slate-100 transition-colors cursor-pointer">
 						<Minus className="w-3.5 h-3.5" />
 					</button>
@@ -69,6 +76,7 @@ export default function ProductCard({
 								const val = e.target.value;
 								onChangeQuantity(product.id, val === "" ? 0 : parseFloat(val));
 							}}
+							disabled={isExpired}
 							onKeyDown={(e) => {
 								if (e.key === "Enter") {
 									e.currentTarget.blur();
@@ -82,6 +90,7 @@ export default function ProductCard({
 					</div>
 					<button
 						onClick={() => onIncrement(product.id)}
+						disabled={isExpired}
 						className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-xs hover:bg-slate-100 transition-colors cursor-pointer">
 						<Plus className="w-3.5 h-3.5" />
 					</button>
@@ -90,7 +99,11 @@ export default function ProductCard({
 				<button
 					onClick={() => onDelete(product.id)}
 					className="w-8 h-8 flex items-center justify-center text-slate-400 shadow-xs hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
-					title="Удалить / Съедено">
+					title={
+						isExpired
+							? "Выбросить просроченный продукт"
+							: "Продукт съеден /Удалить продукт"
+					}>
 					<Trash2 className="w-3.5 h-3.5" />
 				</button>
 			</div>

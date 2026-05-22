@@ -10,9 +10,10 @@ export interface Recipe {
 
 interface RecipeViewProps {
 	recipe: Recipe;
+	onAddToShop: (name: string) => void;
 }
 
-export default function RecipeView({ recipe }: RecipeViewProps) {
+export default function RecipeView({ recipe, onAddToShop }: RecipeViewProps) {
 	return (
 		<div className="bg-white rounded-2xl p-6 boder border-slate-100 shadow-xs flex flex-col gap-6">
 			<div className="flex flex-col gap-1.5 border-b border-slate-50 pb-4">
@@ -58,7 +59,7 @@ export default function RecipeView({ recipe }: RecipeViewProps) {
 						{recipe.missing.map((item, index) => (
 							<button
 								key={index}
-								onClick={() => console.log("Добавить в покупки:", item)}
+								onClick={() => onAddToShop(item)}
 								className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50/60hover:bg-amber-100 text-amber-800 rounded-xl font-medium border border-amber-100/50 transition-colors cursor-pointer">
 								<span className="text-amber-500 font-bold text-sm">+</span>
 								{item}

@@ -5,17 +5,44 @@ import FridgeGrid from "./Fridge/FridgeGrid";
 import AiChef from "./AiChef/AiChef";
 import { Product } from "./Fridge/ProductCard";
 
+export interface ShoppingItem {
+	id: string | number;
+	name: string;
+	isCompleted: boolean;
+}
+
 export default function Dashboard() {
 	const [session, setSession] = useState<Session | null>(null);
 	const [activeTab, setActiveTab] = useState<"fridge" | "chef" | "shop">(
 		"fridge",
 	);
 
-	const [products, setProducts] = useState<Product[]>([
-		{ id: 1, name: "Молоко 3,2%", quantity: 1, unit: "л", daysLeft: 2 },
-		{ id: 2, name: "Куриное филе", quantity: 0.8, unit: "кг", daysLeft: 5 },
-		{ id: 3, name: "Сыр Тофу", quantity: 2, unit: "шт", daysLeft: 0 },
-	]);
+	const [products, setProducts] = useState<Product[]>([]);
+
+	const [shoppingList, setShoppingList] = useState<ShoppingItem[]>(() => {
+		const saved = localStorage.getItem("smart_fridge_shopping_list");
+		return saved ? JSON.parse(saved) : [];
+	});
+
+	const handleAddToShoppingList = (name: string) => {
+		const isExist = shoppingList.some(
+			(item) => item.name.toLowerCase() === name.toLowerCase(),
+		);
+		if (isExist) return;
+
+		const newItem: ShoppingItem = {
+			id: Date.now(),
+			name,
+			isCompleted: false,
+		};
+
+		const updatedList = [...shoppingList, newItem];
+		setShoppingList(updatedList);
+		localStorage.setItem(
+			"smart_fridge_shopping_list",
+			JSON.stringify(updatedList),
+		);
+	};
 
 	return (
 		<div className="flex gap-4 w-full h-full">
@@ -29,7 +56,9 @@ export default function Dashboard() {
 					<FridgeGrid products={products} setProducts={setProducts} />
 				)}
 
-				{activeTab === "chef" && <AiChef products={products} />}
+				{activeTab === "chef" && (
+					<AiChef products={products} onAddToShop={handleAddToShoppingList} />
+				)}
 
 				{activeTab === "shop" && (
 					<div>

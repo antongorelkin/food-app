@@ -14,9 +14,9 @@ export default function AddProductModal({
 	onAdd,
 }: AddProductModalProps) {
 	const [name, setName] = useState("");
-	const [quantity, setQuantity] = useState<number>(1);
+	const [quantity, setQuantity] = useState<number | "">(1);
 	const [unit, setUnit] = useState("шт");
-	const [daysLeft, setDaysLeft] = useState<number>(7);
+	const [daysLeft, setDaysLeft] = useState<number | "">(7);
 
 	if (!isOpen) return null;
 
@@ -32,9 +32,9 @@ export default function AddProductModal({
 
 		onAdd({
 			name: name.trim(),
-			quantity: Number(quantity),
+			quantity: quantity === "" ? 0 : quantity,
 			unit,
-			daysLeft: Number(daysLeft),
+			daysLeft: daysLeft === "" ? 0 : daysLeft,
 		});
 
 		setName("");
@@ -81,7 +81,7 @@ export default function AddProductModal({
 								type="number"
 								step={unit === "шт" || unit === "уп" ? "1" : "0"}
 								min="0"
-								value={quantity}
+								value={quantity === 0 ? "" : quantity}
 								onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
 								required
 								className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus-border-emerald-500 focus-bg-white transition-all"
@@ -107,7 +107,7 @@ export default function AddProductModal({
 						<input
 							type="number"
 							min="0"
-							value={daysLeft}
+							value={daysLeft === 0 ? "" : daysLeft}
 							onChange={(e) => setDaysLeft(parseInt(e.target.value) || 0)}
 							required
 							className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus-border-emerald-500 focus-bg-white transition-all"
