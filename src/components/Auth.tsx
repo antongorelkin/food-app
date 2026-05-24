@@ -1,18 +1,63 @@
 import { supabase } from "../utils/supabaseClient";
 import { useState } from "react";
-import { Refrigerator, Mail, Lock, AlertCircle, Sparkles } from "lucide-react";
+import {
+	Refrigerator,
+	Mail,
+	Lock,
+	AlertCircle,
+	Sparkles,
+	EyeOff,
+	Eye,
+} from "lucide-react";
 
 export default function Auth() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 	const [isSignUp, setIsSignUp] = useState(false);
-	const [error, setError] = useState(null);
+	const [serverError, setServerError] = useState<string | null>(null);
+	const [errors, setErrors] = useState<{
+		email?: string;
+		password?: string;
+		confirmPassword?: string;
+	}>({});
 	const [loading, setLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+
+	const validateForm = (): boolean => {
+		const tempErrors: typeof errors = {};
+		let isValid = true;
+
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!email.trim()) {
+			tempErrors.email = "Email обязателен для заполнения";
+			isValid = false;
+		} else if (!emailRegex.test(email)) {
+			tempErrors.email = "Введите корректный email адрес";
+			isValid = false;
+		}
+
+		if (!password) {
+			tempErrors.password = "Пароль обязателен для заполнения";
+			isValid = false;
+		} else if (password.length < 6) {
+			tempErrors.password = "Пароль должен быть не менее 6 символов";
+			isValid = false;
+		}
+
+		if (isSignUp && password !== confirmPassword) {
+			tempErrors.confirmPassword = "Пароли не совпадают";
+			isValid = false;
+		}
+
+		setErrors(tempErrors);
+		return isValid;
+	};
 
 	const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setLoading(true);
-		setError(null);
+		setServerError(null);
+		setErrors({});
 
 		try {
 			if (isSignUp) {
@@ -23,6 +68,8 @@ export default function Auth() {
 				if (signUpError) throw signUpError;
 				alert("Регистрация успешна! Теперь вы можете войти.");
 				setIsSignUp(false);
+				setPassword("");
+				setConfirmPassword("");
 			} else {
 				const { error: signInError } = await supabase.auth.signInWithPassword({
 					email,
@@ -31,7 +78,13 @@ export default function Auth() {
 				if (signInError) throw signInError;
 			}
 		} catch (err: any) {
-			setError(err.message || "Произошла ошибка при авторизации");
+			if (err.message?.includes("Invalid login credentials")) {
+				setServerError("Неверный email или пароль");
+			} else if (err.message?.includes("User already registered")) {
+				setServerError("Пользователь с таким email уже существует");
+			} else {
+				setServerError(err.message || "Произошла ошибка при аутентификации");
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -39,7 +92,10 @@ export default function Auth() {
 	const toggleMode = (e: React.MouseEvent<HTMLAnchorElement>) => {
 		e.preventDefault();
 		setIsSignUp(!isSignUp);
-		setError(null);
+		setServerError(null);
+		setErrors({});
+		setPassword("");
+		setConfirmPassword("");
 	};
 
 	return (
@@ -78,6 +134,11 @@ export default function Auth() {
 								className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus-border-emerald-500 focus:bg-white transition-all font-medium"
 							/>
 						</div>
+						{errors?.email && (
+							<span className="text-[11px] text-rose-500 pl-1 font-medium">
+								{errors.email}
+							</span>
+						)}
 					</div>
 					<div className="flex flex-col gap-1.5">
 						<label
@@ -88,21 +149,71 @@ export default function Auth() {
 						<div className="relative flex items-center">
 							<Lock className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
 							<input
-								type="password"
+								type={showPassword ? "text" : "password"}
 								id="password"
 								placeholder="••••••••"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
-								className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus-border-emerald-500 focus:bg-white transition-all font-medium"
+								className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm focus:outline-none transition-all font-medium ${
+									errors.password
+										? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+										: "border-slate-200 focus:border-emerald-500 focus:bg-white"
+								}`}
 							/>
+							<button
+								type="button"
+								onClick={() => setShowPassword(!showPassword)}
+								className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer">
+								{showPassword ? (
+									<EyeOff className="w-4 h-4" />
+								) : (
+									<Eye className="w-4 h-4" />
+								)}
+							</button>
 						</div>
+						{errors?.password && (
+							<span className="text-[11px] text-rose-500 pl-1 font-medium">
+								{errors.password}
+							</span>
+						)}
 					</div>
 
-					{error && (
+					{isSignUp && (
+						<div className="flex flex-col gap-1 animate-fade-in">
+							<label
+								htmlFor="confirmPassword"
+								className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">
+								Подтверждение пароля
+							</label>
+							<div className="relative flex items-center">
+								<Lock className="absolute left-3 w-4 h-4 text-slate-400 " />
+								<input
+									type={showPassword ? "text" : "password"}
+									id="confirmPassword"
+									placeholder="••••••••"
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									required
+									className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-sm focus:outline-none transition-all font-medium ${
+										errors.confirmPassword
+											? "border-rose-400 bg-rose-50/20 focus:border-rose-500"
+											: "border-slate-200 focus:border-emerald-500 focus:bg-white"
+									}`}
+								/>
+							</div>
+							{errors?.confirmPassword && (
+								<span className="text-[11px] text-rose-500 pl-1 font-medium">
+									{errors.confirmPassword}
+								</span>
+							)}
+						</div>
+					)}
+
+					{serverError && (
 						<div className="flex items-center gap-2 bg-rose-50 border border-rose-100 text-rose-600 font-medium animate-fade-in rounded-xl p-3">
 							<AlertCircle className="w-4 h-4 shrink-0" />
-							<span>{error}</span>
+							<span>{serverError}</span>
 						</div>
 					)}
 
@@ -113,11 +224,12 @@ export default function Auth() {
 						{loading ? (
 							<span className="animate-pulse">Проверка данных...</span>
 						) : (
-							<Sparkles className="w-4 h-4">
+							<>
+								<Sparkles className="w-4 h-4" />
 								<span>
 									{isSignUp ? "Зарегистрироваться" : "Войти в аккаунт"}
 								</span>
-							</Sparkles>
+							</>
 						)}
 					</button>
 				</form>

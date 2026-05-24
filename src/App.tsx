@@ -23,8 +23,8 @@ function App() {
 
 	return (
 		<div className="min-h-screen bg-slate-100 flex p-4 gap-4">
-			{/* {session ? <Dashboard /> : <Auth />} */}
-			<Dashboard />
+			{session ? <Dashboard /> : <Auth />}
+			{/* <Dashboard /> */}
 		</div>
 	);
 }
