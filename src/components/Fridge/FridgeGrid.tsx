@@ -3,13 +3,23 @@ import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
 import ConfirmModal from "../ConfirmModal";
 
-export default function FridgeGrd({
-	products,
-	setProducts,
-}: {
+interface FridgeGridProps {
 	products: Product[];
-	setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-}) {
+	onAddProduct: (product: Omit<Product, "id">) => void;
+	onIncrement: (id: string | number) => void;
+	onDecrement: (id: string | number) => void;
+	onChangeQuantity: (id: string | number, value: number) => void;
+	onDelete: (id: string | number) => void;
+}
+
+export default function FridgeGrid({
+	products,
+	onAddProduct,
+	onIncrement,
+	onDecrement,
+	onChangeQuantity,
+	onDelete,
+}: FridgeGridProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [productToDelete, setProductToDelete] = useState<
 		string | number | null
@@ -21,53 +31,9 @@ export default function FridgeGrd({
 
 	const handleConfirmDelete = () => {
 		if (productToDelete !== null) {
-			setProducts(products.filter((product) => product.id !== productToDelete));
+			onDelete(productToDelete);
 			setProductToDelete(null);
 		}
-	};
-
-	const handleAddProduct = (newProductData: Omit<Product, "id">) => {
-		const newProduct: Product = {
-			...newProductData,
-			id: Date.now(),
-		};
-		setProducts([...products, newProduct]);
-	};
-
-	const handleIncrement = (id: string | number) => {
-		setProducts(
-			products.map((product) => {
-				if (product.id === id) {
-					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-					const newQuantity = Number((product.quantity + step).toFixed(1));
-					return { ...product, quantity: newQuantity };
-				}
-				return product;
-			}),
-		);
-	};
-
-	const handleDecrement = (id: string | number) => {
-		setProducts(
-			products.map((product) => {
-				if (product.id === id) {
-					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-					const newQuantity = Number((product.quantity - step).toFixed(1));
-					return { ...product, quantity: newQuantity };
-				}
-				return product;
-			}),
-		);
-	};
-
-	const handleChangeQuantity = (id: string | number, value: number) => {
-		setProducts(
-			products.map((product) =>
-				product.id === id
-					? { ...product, quantity: value < 0 ? 0 : Number(value.toFixed(1)) }
-					: product,
-			),
-		);
 	};
 
 	return (
@@ -110,17 +76,17 @@ export default function FridgeGrd({
 					<ProductCard
 						key={product.id}
 						product={product}
-						onIncrement={handleIncrement}
-						onDecrement={handleDecrement}
-						onDelete={handleOpenConfirm}
-						onChangeQuantity={handleChangeQuantity}
+						onIncrement={onIncrement}
+						onDecrement={onDecrement}
+						onDelete={(id) => setProductToDelete(id)}
+						onChangeQuantity={onChangeQuantity}
 					/>
 				))}
 			</div>
 			<AddProductModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
-				onAdd={handleAddProduct}
+				onAdd={onAddProduct}
 			/>
 			<ConfirmModal
 				isOpen={productToDelete !== null}
