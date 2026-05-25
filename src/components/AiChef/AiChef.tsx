@@ -62,7 +62,7 @@ export default function AiChef({ products, onAddToShop }: AiChefProps) {
 	};
 
 	return (
-		<div className="w-full flex flex-col gap-6 max-w-2xl mx-auto">
+		<div className="w-full flex flex-col gap-5 max-w-2xl mx-auto px-2 md:px-0 animate-fade-in">
 			<div>
 				<h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
 					<Sparkles className="w-6 h-6 text-emerald-600" /> ИИ-Шеф Повар
@@ -84,7 +84,7 @@ export default function AiChef({ products, onAddToShop }: AiChefProps) {
 			{recipe && !loading && (
 				<button
 					onClick={handleResetRecipe}
-					className="text-xs text-slate-400 hover:text-rose-500 self-end transition-colors cursor-pointer">
+					className="text-[11px] md:text-xs text-slate-400 hover:text-rose-500 self-center md:self-end transition-colors cursor-pointer mt-1 font-medium">
 					🔄 Сбросить и придумать другое блюдо
 				</button>
 			)}

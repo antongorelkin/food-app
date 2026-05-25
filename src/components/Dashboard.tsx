@@ -17,8 +17,10 @@ export default function Dashboard() {
 	const [activeTab, setActiveTab] = useState<"fridge" | "chef" | "shop">(
 		"fridge",
 	);
-
-	const [products, setProducts] = useState<Product[]>([]);
+	const [products, setProducts] = useState<Product[]>(() => {
+		const saved = localStorage.getItem("smart_fridge_products");
+		return saved ? JSON.parse(saved) : [];
+	});
 
 	const [shoppingList, setShoppingList] = useState<ShoppingItem[]>(() => {
 		const saved = localStorage.getItem("smart_fridge_shopping_list");
@@ -71,13 +73,15 @@ export default function Dashboard() {
 	};
 
 	return (
-		<div className="flex gap-4 w-full h-full">
-			<Sidebar
-				session={session}
-				activeTab={activeTab}
-				setActiveTab={setActiveTab}
-			/>
-			<main className="flex-1 bg-white rounded-2xl shadow-md p-6 h-[calc(100vh - 32px)] border border-slate-100">
+		<div className="flex flex-col md:flex-row gap-4 w-full min-h-[calc(100vh-32px)] md:h-[calc(100vh-32px)] pb-16 md:pb-0 relative">
+			<div className="hidden md:flex shrink-0">
+				<Sidebar
+					session={session}
+					activeTab={activeTab}
+					setActiveTab={setActiveTab}
+				/>
+			</div>
+			<main className="flex-1 bg-white rounded-2xl shadow-md p-5 md:p-6 h-full border border-slate-100 overflow-y-auto">
 				{activeTab === "fridge" && (
 					<FridgeGrid products={products} setProducts={setProducts} />
 				)}
@@ -87,21 +91,49 @@ export default function Dashboard() {
 				)}
 
 				{activeTab === "shop" && (
-					<div>
-						<h2 className="text-2xl font-bold text-slate-800">
-							🛒 Список покупок
-						</h2>
-						<p className="text-slate-500 mt-2">
-							<ShoppingList
-								items={shoppingList}
-								onToggleComplete={handleToggleComplete}
-								onDeleteItem={handleDeleteShoppingItem}
-								onClearAll={handleClearAllShoppingList}
-							/>
-						</p>
-					</div>
+					<ShoppingList
+						items={shoppingList}
+						onToggleComplete={handleToggleComplete}
+						onDeleteItem={handleDeleteShoppingItem}
+						onClearAll={handleClearAllShoppingList}
+					/>
 				)}
 			</main>
+
+			<nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-100 flex justify-around items-center py-2 px-4 z-40 shadow-lg">
+				<button
+					onClick={() => setActiveTab("fridge")}
+					className={`flex flex-col items-center gap-1 p-2 cursor-pointer transition-colors ${
+						activeTab === "fridge"
+							? "text-emerald-600 font-semibold"
+							: "text-slate-400"
+					}`}>
+					<span className="text-lg">🧊</span>
+					<span className="text-[10px]">Холодильник</span>
+				</button>
+
+				<button
+					onClick={() => setActiveTab("chef")}
+					className={`flex flex-col items-center gap-1 p-2 cursor-pointer transition-colors ${
+						activeTab === "chef"
+							? "text-emerald-600 font-semibold"
+							: "text-slate-400"
+					}`}>
+					<span className="text-lg">🪄</span>
+					<span className="text-[10px]">ИИ-Шеф</span>
+				</button>
+
+				<button
+					onClick={() => setActiveTab("shop")}
+					className={`flex flex-col items-center gap-1 p-2 cursor-pointer transition-colors ${
+						activeTab === "shop"
+							? "text-emerald-600 font-semibold"
+							: "text-slate-400"
+					}`}>
+					<span className="text-lg">🛒</span>
+					<span className="text-[10px]">Покупки</span>
+				</button>
+			</nav>
 		</div>
 	);
 }
