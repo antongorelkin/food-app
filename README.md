@@ -60,7 +60,7 @@ src/
 
    ```bash
    git clone https://github.com
-   cd smart-fridge
+   cd food-app
    ```
 
 2. Установите все зависимости:
