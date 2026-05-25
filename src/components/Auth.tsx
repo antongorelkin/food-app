@@ -220,7 +220,7 @@ export default function Auth() {
 					<button
 						type="submit"
 						disabled={loading}
-						className="w-full mt-2 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-emerald-600/10 hover:-translate-y-0.5 active:translate-y-0 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2">
+						className="w-full mt-2 py-3 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-emerald-600/10 hover:-translate-y-0.5 active:translate-y-0 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2">
 						{loading ? (
 							<span className="animate-pulse">Проверка данных...</span>
 						) : (

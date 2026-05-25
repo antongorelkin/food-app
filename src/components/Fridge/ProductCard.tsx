@@ -1,5 +1,6 @@
 import React from "react";
 import { Plus, Minus, Trash2 } from "lucide-react";
+import { getCategoryConfig } from "../../utils/categoryHelper";
 
 export interface Product {
 	id: string | number;
@@ -7,6 +8,7 @@ export interface Product {
 	quantity: number;
 	unit: string;
 	daysLeft: number;
+	category: string;
 }
 
 interface ProductCardProps {
@@ -28,6 +30,9 @@ export default function ProductCard({
 	let statusBg = "bg-emerald-50 text-emerald-700";
 	let statusText = `Свежее (${product.daysLeft} дн.)`;
 
+	const config = getCategoryConfig(product.category);
+	const CategoryIcon = config.icon;
+
 	if (isExpired) {
 		statusBg = "bg-rose-100 text-rose-700 font-semibold animate-pulse";
 		statusText = "Просрочено!";
@@ -43,6 +48,12 @@ export default function ProductCard({
 					? "opacity-50 border-rose-100"
 					: "hover:shadow-md hover:-translate-y-0.5"
 			}`}>
+			<div className="flex gap-3 items-start">
+				<div
+					className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${config.colorClass}`}>
+					<CategoryIcon className="w-5 h-5" />
+				</div>
+			</div>
 			<div className="flex flex-col gap-1.5">
 				<div className="flex justify-between items-start gap-2">
 					<h3
