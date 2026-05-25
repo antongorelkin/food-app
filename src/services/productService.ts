@@ -16,6 +16,7 @@ export const getProducts = async (): Promise<Product[]> => {
     quantity: item.quantity,
     unit: item.unit,
     daysLeft: item.days_left,
+    category: item.category || 'other'
   }));
 }
 
@@ -39,6 +40,7 @@ export const addProduct = async (product: Omit<Product, 'id'>): Promise<Product>
     quantity: data.quantity,
     unit: data.unit,
     daysLeft: data.days_left,
+    category: data.category
   };
 }
 

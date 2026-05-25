@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Product } from "./ProductCard";
+import { PRODUCT_CATEGORIES } from "../../utils/categoryHelper";
 
 interface AddProductModalProps {
 	isOpen: boolean;
@@ -17,6 +18,7 @@ export default function AddProductModal({
 	const [quantity, setQuantity] = useState<number | "">(1);
 	const [unit, setUnit] = useState("шт");
 	const [daysLeft, setDaysLeft] = useState<number | "">(7);
+	const [category, setCategory] = useState("other");
 
 	if (!isOpen) return null;
 
@@ -35,6 +37,7 @@ export default function AddProductModal({
 			quantity: quantity === "" ? 0 : quantity,
 			unit,
 			daysLeft: daysLeft === "" ? 0 : daysLeft,
+			category,
 		});
 
 		setName("");
@@ -112,6 +115,21 @@ export default function AddProductModal({
 							required
 							className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus-border-emerald-500 focus-bg-white transition-all"
 						/>
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-xs font-semibold text-slate-500">
+							Категория продукта
+						</label>
+						<select
+							value={category}
+							onChange={(e) => setCategory(e.target.value)}
+							className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all cursor-pointer font-medium text-slate-700">
+							{PRODUCT_CATEGORIES.map((cat) => (
+								<option key={cat.id} value={cat.id}>
+									{cat.label}
+								</option>
+							))}
+						</select>
 					</div>
 
 					<button
