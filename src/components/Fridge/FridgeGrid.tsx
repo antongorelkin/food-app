@@ -3,7 +3,7 @@ import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
 import ConfirmModal from "../ConfirmModal";
 
-export default function FridgeGrd({
+export default function FridgeGrid({
 	products,
 	setProducts,
 }: {
@@ -21,7 +21,12 @@ export default function FridgeGrd({
 
 	const handleConfirmDelete = () => {
 		if (productToDelete !== null) {
-			setProducts(products.filter((product) => product.id !== productToDelete));
+			const updatedProducts = products.filter((p) => p.id !== productToDelete);
+			setProducts(updatedProducts);
+			localStorage.setItem(
+				"smart_fridge_products",
+				JSON.stringify(updatedProducts),
+			);
 			setProductToDelete(null);
 		}
 	};
@@ -31,42 +36,55 @@ export default function FridgeGrd({
 			...newProductData,
 			id: Date.now(),
 		};
-		setProducts([...products, newProduct]);
+
+		const updatedProducts = [...products, newProduct];
+		setProducts(updatedProducts);
+		localStorage.setItem(
+			"smart_fridge_products",
+			JSON.stringify(updatedProducts),
+		);
 	};
 
 	const handleIncrement = (id: string | number) => {
-		setProducts(
-			products.map((product) => {
-				if (product.id === id) {
-					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-					const newQuantity = Number((product.quantity + step).toFixed(1));
-					return { ...product, quantity: newQuantity };
-				}
-				return product;
-			}),
+		const updatedProducts = products.map((product) => {
+			if (product.id === id) {
+				const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
+				const newQuantity = Number((product.quantity + step).toFixed(1));
+				return { ...product, quantity: newQuantity };
+			}
+			return product;
+		});
+		setProducts(updatedProducts);
+		localStorage.setItem(
+			"smart_fridge_products",
+			JSON.stringify(updatedProducts),
 		);
 	};
 
 	const handleDecrement = (id: string | number) => {
-		setProducts(
-			products.map((product) => {
-				if (product.id === id) {
-					const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-					const newQuantity = Number((product.quantity - step).toFixed(1));
-					return { ...product, quantity: newQuantity };
-				}
-				return product;
-			}),
+		const updatedProducts = products.map((product) => {
+			if (product.id === id) {
+				const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
+				const newQuantity = Number((product.quantity - step).toFixed(1));
+				return { ...product, quantity: newQuantity < 0 ? 0 : newQuantity };
+			}
+			return product;
+		});
+		setProducts(updatedProducts);
+		localStorage.setItem(
+			"smart_fridge_products",
+			JSON.stringify(updatedProducts),
 		);
 	};
 
 	const handleChangeQuantity = (id: string | number, value: number) => {
-		setProducts(
-			products.map((product) =>
-				product.id === id
-					? { ...product, quantity: value < 0 ? 0 : Number(value.toFixed(1)) }
-					: product,
-			),
+		const updatedProducts = products.map((p) =>
+			p.id === id ? { ...p, quantity: value } : p,
+		);
+		setProducts(updatedProducts);
+		localStorage.setItem(
+			"smart_fridge_products",
+			JSON.stringify(updatedProducts),
 		);
 	};
 
@@ -86,10 +104,10 @@ export default function FridgeGrd({
 			</div>
 
 			{products.length === 0 && (
-				<div className="flex flex-col items-center justify-center py-20 text-center gap-4 bg-slate-50 border border-dashed border-slate-200 rounded-2x p-8 max-w-xl mx-auto w-full animate-fade-in">
+				<div className="flex flex-col items-center justify-center py-20 text-center gap-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 max-w-xl mx-auto w-full animate-fade-in">
 					<span className="text-4xl animate-bounce">🥶</span>
 					<h3 className="font-bold text-slate-700 text-lg">
-						Ваш холодильник совершенно пуст
+						Ваш refrigerator совершенно пуст
 					</h3>
 					<p className="text-sm text-slate-400 max-w-[320px] leading-relaxed">
 						Здесь пока ничего нет. Добавьте продукты, которые лежат у вас дома,
@@ -105,7 +123,7 @@ export default function FridgeGrd({
 				</div>
 			)}
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg-grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
 				{products.map((product) => (
 					<ProductCard
 						key={product.id}
