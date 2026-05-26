@@ -12,8 +12,7 @@ export interface ShoppingItem {
 	isCompleted: boolean;
 }
 
-export default function Dashboard() {
-	const [session, setSession] = useState<Session | null>(null);
+export default function Dashboard({ session }: { session: Session | null }) {
 	const [activeTab, setActiveTab] = useState<"fridge" | "chef" | "shop">(
 		"fridge",
 	);

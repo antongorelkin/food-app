@@ -10,20 +10,22 @@ function App() {
 	useEffect(() => {
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((event, session) => {
-			setSession(session);
+		} = supabase.auth.onAuthStateChange((_event, currentSession) => {
+			setSession(currentSession);
 		});
 
 		supabase.auth
 			.getSession()
-			.then(({ data: { session } }) => setSession(session));
+			.then(({ data: { session: initialSession } }) =>
+				setSession(initialSession),
+			);
 
 		return () => subscription.unsubscribe();
 	}, []);
 
 	return (
 		<div className="min-h-screen bg-slate-100 flex p-4 gap-4">
-			{session ? <Dashboard /> : <Auth />}
+			{session ? <Dashboard session={session} /> : <Auth />}
 			{/* <Dashboard /> */}
 		</div>
 	);

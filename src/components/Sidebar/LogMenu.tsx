@@ -13,9 +13,13 @@ export default function LogMenu({ session, handleSignOut }: LogMenuProps) {
 					{session?.user?.email?.[0].toUpperCase() || "U"}
 				</div>
 				<div className="flex flex-col min-w-0">
-					<span className="text-xs text-slate-400 font-medium">Аккаунт</span>
-					<span className="text-sm font-semibold text-slate-700 truncate">
-						{session?.user?.email || "user@example.com"}
+					<span className="text-xs text-slate-400 font-medium">
+						{session?.user?.user_metadata?.full_name || "Пользователь"}
+					</span>
+					<span
+						className="text-sm font-semibold text-slate-700 truncate"
+						title={session?.user?.email || ""}>
+						{session?.user?.email || "Загрузка профиля..."}
 					</span>
 				</div>
 			</div>

@@ -34,7 +34,7 @@ export default function Sidebar({
 				</span>
 			</div>
 			<NavMenu activeTab={activeTab} onTabChange={setActiveTab} />
-			<LogMenu session={session} />
+			<LogMenu session={session} handleSignOut={handleSignOut} />
 		</aside>
 	);
 }
