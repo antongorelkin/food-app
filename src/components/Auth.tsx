@@ -58,33 +58,47 @@ export default function Auth() {
 		e.preventDefault();
 		setServerError(null);
 		setErrors({});
+		if (!validateForm()) return;
 
 		try {
 			if (isSignUp) {
-				const { error: signUpError } = await supabase.auth.signUp({
-					email,
+				const { data, error: signUpError } = await supabase.auth.signUp({
+					email: email.trim(),
 					password,
 				});
 				if (signUpError) throw signUpError;
+				if (data?.user?.identities && data.user.identities.length === 0) {
+					setServerError(
+						"Пользователь с таким email уже зарегистрирован. Пожалуйста, войдите.",
+					);
+					setLoading(false);
+					return;
+				}
 				alert("Регистрация успешна! Теперь вы можете войти.");
 				setIsSignUp(false);
 				setPassword("");
 				setConfirmPassword("");
 			} else {
 				const { error: signInError } = await supabase.auth.signInWithPassword({
-					email,
+					email: email.trim(),
 					password,
 				});
 				if (signInError) throw signInError;
 			}
 		} catch (err: any) {
-			if (err.message?.includes("Invalid login credentials")) {
-				setServerError("Неверный email или пароль");
-			} else if (err.message?.includes("User already registered")) {
-				setServerError("Пользователь с таким email уже существует");
-			} else {
-				setServerError(err.message || "Произошла ошибка при аутентификации");
-			}
+			console.error("Полный лог ошибки Supabase Auth:", err);
+			if (
+				err.status === 422 ||
+				err.message?.includes("User already registered") ||
+				err.message?.includes("already exists")
+			)
+				if (err.message?.includes("Invalid login credentials")) {
+					setServerError("Неверный email или пароль");
+				} else if (err.message?.includes("User already registered")) {
+					setServerError("Пользователь с таким email уже существует");
+				} else {
+					setServerError(err.message || "Произошла ошибка при аутентификации");
+				}
 		} finally {
 			setLoading(false);
 		}
