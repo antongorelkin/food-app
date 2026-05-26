@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar/Sidebar";
 import { Session } from "@supabase/supabase-js";
 import FridgeGrid from "./Fridge/FridgeGrid";
 import AiChef from "./AiChef/AiChef";
 import { Product } from "./Fridge/ProductCard";
 import ShoppingList from "./ShoppingList/ShoppingList";
+import {
+	getProducts,
+	addProduct,
+	updateProductQuantity,
+	deleteProduct,
+} from "../services/productService";
 
 export interface ShoppingItem {
 	id: string | number;
@@ -16,6 +22,7 @@ export default function Dashboard({ session }: { session: Session | null }) {
 	const [activeTab, setActiveTab] = useState<"fridge" | "chef" | "shop">(
 		"fridge",
 	);
+	const [loading, setLoading] = useState(false);
 	const [products, setProducts] = useState<Product[]>(() => {
 		const saved = localStorage.getItem("smart_fridge_products");
 		return saved ? JSON.parse(saved) : [];
@@ -25,6 +32,72 @@ export default function Dashboard({ session }: { session: Session | null }) {
 		const saved = localStorage.getItem("smart_fridge_shopping_list");
 		return saved ? JSON.parse(saved) : [];
 	});
+
+	useEffect(() => {
+		const loadCLoudData = async () => {
+			try {
+				setLoading(true);
+				const cloudProducts = await getProducts();
+				setProducts(cloudProducts);
+			} catch (err) {
+				console.error("Ошибка при скачивании продуктов из Supabase:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+		loadCLoudData();
+	}, [session]);
+
+	const handleAddProduct = async (newProductData: Omit<Product, "id">) => {
+		try {
+			const savedProduct = await addProduct(newProductData);
+			setProducts((prev) => [...prev, savedProduct]);
+		} catch (err) {
+			console.error("Не удалось сохранить продукт в облаке:", err);
+		}
+	};
+
+	const handleQuantityChange = async (
+		id: string | number,
+		newQuantity: number,
+	) => {
+		try {
+			setProducts((prev) =>
+				prev.map((p) => (p.id === id ? { ...p, quantity: newQuantity } : p)),
+			);
+			await updateProductQuantity(id, newQuantity);
+		} catch (err) {
+			console.error("Ошибка обновления в бд:", err);
+		}
+	};
+
+	const handleIncrement = (id: string | number) => {
+		const p = products.find((prod) => prod.id === id);
+		if (!p) return;
+		const step = p.unit === "шт" || p.unit === "уп" ? 1 : 0.1;
+		handleQuantityChange(id, Number((p.quantity + step).toFixed(1)));
+	};
+
+	const handleDecrement = (id: string | number) => {
+		const p = products.find((prod) => prod.id === id);
+		if (!p) return;
+		const step = p.unit === "шт" || p.unit === "уп" ? 1 : 0.1;
+		const newQty = Number((p.quantity - step).toFixed(1));
+		handleQuantityChange(id, newQty < 0 ? 0 : newQty);
+	};
+
+	const handleChangeQuantityInput = (id: string | number, value: number) => {
+		handleQuantityChange(id, value < 0 ? 0 : Number(value.toFixed(1)));
+	};
+
+	const handleConfirmDelete = async (id: string | number) => {
+		try {
+			setProducts((prev) => prev.filter((p) => p.id !== id));
+			await deleteProduct(id);
+		} catch (err) {
+			console.error("Ошибка удаления в бд:", err);
+		}
+	};
 
 	const handleToggleComplete = (id: string | number) => {
 		const updatedList = shoppingList.map((item) =>
@@ -82,7 +155,14 @@ export default function Dashboard({ session }: { session: Session | null }) {
 			</div>
 			<main className="flex-1 bg-white rounded-2xl shadow-md p-5 md:p-6 h-full border border-slate-100 overflow-y-auto">
 				{activeTab === "fridge" && (
-					<FridgeGrid products={products} setProducts={setProducts} />
+					<FridgeGrid
+						products={products}
+						onAddProduct={handleAddProduct}
+						onIncrement={handleIncrement}
+						onDecrement={handleDecrement}
+						onDelete={handleConfirmDelete}
+						onChangeQuantity={handleChangeQuantityInput}
+					/>
 				)}
 
 				{activeTab === "chef" && (

@@ -3,13 +3,23 @@ import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
 import ConfirmModal from "../ConfirmModal";
 
+interface FridgeGridProps {
+	products: Product[];
+	onAddProduct: (product: Omit<Product, "id">) => void;
+	onIncrement: (id: string | number) => void;
+	onDecrement: (id: string | number) => void;
+	onDelete: (id: string | number) => void;
+	onChangeQuantity: (id: string | number, value: number) => void;
+}
+
 export default function FridgeGrid({
 	products,
-	setProducts,
-}: {
-	products: Product[];
-	setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-}) {
+	onAddProduct,
+	onIncrement,
+	onDecrement,
+	onChangeQuantity,
+	onDelete,
+}: FridgeGridProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [productToDelete, setProductToDelete] = useState<
 		string | number | null
@@ -17,75 +27,6 @@ export default function FridgeGrid({
 
 	const handleOpenConfirm = (id: string | number) => {
 		setProductToDelete(id);
-	};
-
-	const handleConfirmDelete = () => {
-		if (productToDelete !== null) {
-			const updatedProducts = products.filter((p) => p.id !== productToDelete);
-			setProducts(updatedProducts);
-			localStorage.setItem(
-				"smart_fridge_products",
-				JSON.stringify(updatedProducts),
-			);
-			setProductToDelete(null);
-		}
-	};
-
-	const handleAddProduct = (newProductData: Omit<Product, "id">) => {
-		const newProduct: Product = {
-			...newProductData,
-			id: Date.now(),
-		};
-
-		const updatedProducts = [...products, newProduct];
-		setProducts(updatedProducts);
-		localStorage.setItem(
-			"smart_fridge_products",
-			JSON.stringify(updatedProducts),
-		);
-	};
-
-	const handleIncrement = (id: string | number) => {
-		const updatedProducts = products.map((product) => {
-			if (product.id === id) {
-				const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-				const newQuantity = Number((product.quantity + step).toFixed(1));
-				return { ...product, quantity: newQuantity };
-			}
-			return product;
-		});
-		setProducts(updatedProducts);
-		localStorage.setItem(
-			"smart_fridge_products",
-			JSON.stringify(updatedProducts),
-		);
-	};
-
-	const handleDecrement = (id: string | number) => {
-		const updatedProducts = products.map((product) => {
-			if (product.id === id) {
-				const step = product.unit === "шт" || product.unit === "уп" ? 1 : 0.1;
-				const newQuantity = Number((product.quantity - step).toFixed(1));
-				return { ...product, quantity: newQuantity < 0 ? 0 : newQuantity };
-			}
-			return product;
-		});
-		setProducts(updatedProducts);
-		localStorage.setItem(
-			"smart_fridge_products",
-			JSON.stringify(updatedProducts),
-		);
-	};
-
-	const handleChangeQuantity = (id: string | number, value: number) => {
-		const updatedProducts = products.map((p) =>
-			p.id === id ? { ...p, quantity: value } : p,
-		);
-		setProducts(updatedProducts);
-		localStorage.setItem(
-			"smart_fridge_products",
-			JSON.stringify(updatedProducts),
-		);
 	};
 
 	return (
@@ -128,23 +69,28 @@ export default function FridgeGrid({
 					<ProductCard
 						key={product.id}
 						product={product}
-						onIncrement={handleIncrement}
-						onDecrement={handleDecrement}
+						onIncrement={onIncrement}
+						onDecrement={onDecrement}
 						onDelete={handleOpenConfirm}
-						onChangeQuantity={handleChangeQuantity}
+						onChangeQuantity={onChangeQuantity}
 					/>
 				))}
 			</div>
 			<AddProductModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
-				onAdd={handleAddProduct}
+				onAdd={onAddProduct}
 			/>
 			<ConfirmModal
 				isOpen={productToDelete !== null}
 				title="Удаление продукта"
-				message="Вы уверены, что хотите убрать этот продукт из холодильника? Это действие нельзя будет отменить."
-				onConfirm={handleConfirmDelete}
+				message="Вы уверены, что хотите убрать этот продукт из холодильника? Данные удалятся с сервера."
+				onConfirm={() => {
+					if (productToDelete !== null) {
+						onDelete(productToDelete); // Вызываем облачное удаление
+						setProductToDelete(null);
+					}
+				}}
 				onCancel={() => setProductToDelete(null)}
 			/>
 		</div>
