@@ -26,7 +26,7 @@ export default function Sidebar({
 		}
 	};
 	return (
-		<aside className="w-64 h-[calc(100vh-32px)]  bg-white shadow-md shadow-sm rounded-2xl flex flex-col p-6 justify-between">
+		<aside className="w-64 h-[calc(100vh-32px)] bg-white shadow-md rounded-2xl flex flex-col p-6 justify-between">
 			<div className="flex items-center gap-3 px-2">
 				<Refrigerator className="w-6 h-6 text-emerald-600" />
 				<span className="font-bold text-xl text-slate-800 tracking-light">
