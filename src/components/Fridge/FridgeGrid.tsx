@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ProductCard, { Product } from "./ProductCard";
 import AddProductModal from "./AddProductModal";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "./ConfirmModal";
 
 interface FridgeGridProps {
 	products: Product[];
