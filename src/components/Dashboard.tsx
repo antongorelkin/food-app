@@ -34,6 +34,7 @@ export default function Dashboard({ session }: { session: Session | null }) {
 	});
 
 	useEffect(() => {
+		if (!session || !session.user) return;
 		const loadCLoudData = async () => {
 			try {
 				setLoading(true);
@@ -46,14 +47,26 @@ export default function Dashboard({ session }: { session: Session | null }) {
 			}
 		};
 		loadCLoudData();
-	}, [session]);
+	}, [session?.user?.id]);
 
 	const handleAddProduct = async (newProductData: Omit<Product, "id">) => {
+		const tempId = Date.now();
+		const optimisticProduct: Product = {
+			...newProductData,
+			id: tempId,
+			category: (newProductData as any).category || "other",
+		};
+
+		setProducts((prev) => [...prev, optimisticProduct]);
 		try {
 			const savedProduct = await addProduct(newProductData);
-			setProducts((prev) => [...prev, savedProduct]);
+			setProducts((prev) =>
+				prev.map((p) => (p.id === tempId ? savedProduct : p)),
+			);
 		} catch (err) {
 			console.error("Не удалось сохранить продукт в облаке:", err);
+			setProducts((prev) => prev.filter((p) => p.id !== tempId));
+			alert("Ошибка синхронизации: не удалось сохранить продукт на сервере.");
 		}
 	};
 

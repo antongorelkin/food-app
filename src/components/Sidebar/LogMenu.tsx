@@ -1,11 +1,21 @@
 import { LogOut } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import { supabase } from "../../utils/supabaseClient";
 
 interface LogMenuProps {
 	session: Session | null;
 	handleSignOut?: () => void;
 }
+
 export default function LogMenu({ session, handleSignOut }: LogMenuProps) {
+	const onLogoutClick = async () => {
+		if (handleSignOut) {
+			handleSignOut();
+		} else {
+			await supabase.auth.signOut();
+		}
+	};
+
 	return (
 		<div className="border-t border-slate-100 flex flex-col gap-4 py-4">
 			<div className="flex items-center gap-3 px-2">
@@ -23,9 +33,12 @@ export default function LogMenu({ session, handleSignOut }: LogMenuProps) {
 					</span>
 				</div>
 			</div>
+
 			<button
-				onClick={handleSignOut}
-				className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors">
+				onClick={async () => {
+					await supabase.auth.signOut();
+				}}
+				className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
 				<LogOut className="w-4 h-4" />
 				<span>Выйти из системы</span>
 			</button>

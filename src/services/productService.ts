@@ -28,7 +28,8 @@ export const addProduct = async (product: Omit<Product, 'id'>): Promise<Product>
         name: product.name,
         quantity: product.quantity,
         unit: product.unit,
-        days_left: product.daysLeft
+        days_left: product.daysLeft,
+        category: product.category || 'other'
       }
     ])
     .select()
@@ -40,7 +41,7 @@ export const addProduct = async (product: Omit<Product, 'id'>): Promise<Product>
     quantity: data.quantity,
     unit: data.unit,
     daysLeft: data.days_left,
-    category: data.category
+    category: data.category || 'other'
   };
 }
 

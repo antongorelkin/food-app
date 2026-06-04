@@ -133,6 +133,7 @@ export default function AddProductModal({
 					</div>
 
 					<button
+						onClick={handleSubmit}
 						type="submit"
 						className="w-full mt-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-sm transition-colors cursor-pointer">
 						Сохранить в инвентарь
